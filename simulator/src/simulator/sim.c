@@ -19,7 +19,7 @@ static bool       g_print_step = false;
 
 
 static TOP_NAME dut;  			    //CPU
-static VerilatedFstC *m_trace = NULL;  //仿真波形
+static VerilatedVcdC *m_trace = NULL;  //仿真波形
 static word_t sim_time = 0;			//时间
 static word_t clk_count = 0;
 
@@ -30,9 +30,9 @@ void npc_get_clk_count(){
 
 void npc_open_simulation(){
   Verilated::traceEverOn(true);
-  m_trace= new VerilatedFstC;
+  m_trace= new VerilatedVcdC;
   dut.trace(m_trace, 5);
-  m_trace->open("waveform.fst");
+  m_trace->open("waveform.vcd");
   Log("打开波形追踪");
 }
 void npc_close_simulation(){
@@ -71,7 +71,6 @@ void npc_init() {
   }
   Log("处理器初始化完毕");
 }
-
 
 
 word_t commit_pre_pc = 0; 

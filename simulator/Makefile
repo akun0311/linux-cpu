@@ -1,6 +1,6 @@
 TOPNAME :=top_cpu
 CPU_DIR=$(CPU_HOME)/IP/rv64/pipeline_cpu
-SRC_DIR:=$(SIM_HOME)/sim  #要么是sim, 要么是src, src是测试验证框架，sim是
+SRC_DIR:=$(SIM_HOME)/src  #要么是sim, 要么是src, src是测试验证框架，sim是
 
 
 PREFIX_NAME:=npc
@@ -11,7 +11,7 @@ VL_ROOT_HEADER=\\\"$(PREFIX_NAME).h\\\"
 
 
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -j 8 -trace-fst -cc -O0 --x-assign fast --x-initial fast --noassert -I$(CPU_DIR)
+VERILATOR_CFLAGS += -MMD --build -j 8 -trace -cc -O0 --x-assign fast --x-initial fast --noassert -I$(CPU_DIR)
 VERILATOR_CFLAGS += $(TOPNAME_FLAG)
 VERILATOR_CFLAGS += $(PREFIX_FLAG)
 
@@ -61,11 +61,11 @@ all: default
 run: clean $(BIN)
 	$(BIN) $(ARGS) $(IMAGE)
 sim: 
-	gtkwave waveform.fst
+	gtkwave waveform.vcd
 
 clean:
 	rm -rf $(BUILD_DIR)
-	rm -f waveform.fst
+	rm -f waveform.vcd
 
 
 .PHONY: default all clean run sim
