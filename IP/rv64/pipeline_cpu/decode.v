@@ -4,46 +4,46 @@ module decode
 (
     input wire clk,                    // 时钟信号
     input wire rst,                     // 复位信号
-    input wire [31:0]  regD_instr,    // 输入指令
+    input wire [31:0]  				regD_instr,    // 输入指令
 	//execute阶段数据前递
-	input wire [WIDTH-1:0]	execute_alu_result,
+	input wire [WIDTH-1:0]			execute_alu_result,
 	input wire [GPR_SIZE-1:0] 		regE_rd,
-	input wire 				regE_reg_wen,
+	input wire 						regE_reg_wen,
 
 	input wire [OP_SIZE-1:0] 		regM_opcode_info,
-	input wire [WIDTH - 1:0]regM_alu_result,
-	input wire [WIDTH-1:0]	memory_memdata,
+	input wire [WIDTH - 1:0]		regM_alu_result,
+	input wire [WIDTH-1:0]			memory_memdata,
 	input wire  [GPR_SIZE-1:0]		regM_rd,
-	input wire 				regM_reg_wen,
+	input wire 						regM_reg_wen,
 
 	input wire [OP_SIZE-1:0]		regW_opcode_info,
-	input wire [WIDTH-1:0]	regW_pc,
-	input wire [WIDTH-1:0]  regW_alu_result,
-	input wire [WIDTH-1:0]	regW_memdata,
+	input wire [WIDTH-1:0]			regW_pc,
+	input wire [WIDTH-1:0]  		regW_alu_result,
+	input wire [WIDTH-1:0]			regW_memdata,
 	input wire  [GPR_SIZE-1:0]		regW_rd,
-	input wire  			regW_reg_wen,
+	input wire  					regW_reg_wen,
 	//要写回的数据信息
-	input wire [WIDTH-1:0] 	write_back_data,
+	input wire [WIDTH-1:0] 			write_back_data,
 	input wire [GPR_SIZE-1:0]  		write_back_rd,
-	input wire 		  		write_back_reg_wen,
+	input wire 		  				write_back_reg_wen,
 
 	
 	output wire [ALU_SIZE-1:0]  	decode_alu_info,
 	output wire [OP_SIZE-1:0]		decode_opcode_info,
-	output wire [5:0]		decode_branch_info,
-	output wire [10:0]  	decode_load_store_info,
+	output wire [5:0]				decode_branch_info,
+	output wire [10:0]  			decode_load_store_info,
 
 	//译码得出来的数据信息
-    output wire [WIDTH-1:0]  decode_regdata1,   
-    output wire [WIDTH-1:0]  decode_regdata2,   
-	output wire [WIDTH-1:0]  decode_imm,
+    output wire [WIDTH-1:0]  		 decode_regdata1,   
+    output wire [WIDTH-1:0]  		 decode_regdata2,   
+	output wire [WIDTH-1:0]  		 decode_imm,
 
 	output wire [GPR_SIZE-1:0]		 decode_rs1,
 	output wire [GPR_SIZE-1:0]   	 decode_rs2,
 
 	
 	output wire [GPR_SIZE-1:0]		 decode_rd,//要写回的数据
-	output wire 	   		 decode_reg_wen
+	output wire 	   		 		 decode_reg_wen
 );
 
 
@@ -54,8 +54,6 @@ wire [2:0]  func3  = instr[14:12];
 wire [GPR_SIZE-1:0]  rs1    = instr[19:15];
 wire [GPR_SIZE-1:0]  rs2    = instr[24:20];
 wire [6:0]  func7  = instr[31:25];
-
-
 //====================================func3=======func7===imm=====================================
 wire func3_000 				= (func3 == 3'b000);
 wire func3_001  			= (func3 == 3'b001);
@@ -266,15 +264,15 @@ assign decode_reg_wen = inst_i_type | inst_u_type | inst_r_type | inst_j_type;
 wire [WIDTH-1:0] regfile_regdata1;
 wire [WIDTH-1:0] regfile_regdata2;
 regfile u_regfile(
-	.clk                     	(clk                      	),
-	.rst                     	(rst                      	),
+	.clk                     	(clk                 ),
+	.rst                     	(rst                 ),
 	.write_back_rd      		(write_back_rd      		),
 	.write_back_data    		(write_back_data     		),
 	.write_back_reg_wen 		(write_back_reg_wen  		),
-	.decode_rs1            	(rs1             			),
-	.decode_rs2            	(rs2             			),
-	.regfile_regdata1      	(regfile_regdata1     	),
-	.regfile_regdata2      	(regfile_regdata2       	)
+	.decode_rs1            		(rs1             			),
+	.decode_rs2            		(rs2             			),
+	.regfile_regdata1      		(regfile_regdata1     		),
+	.regfile_regdata2      		(regfile_regdata2       	)
 );
 //execute阶段数据前递
 
@@ -288,18 +286,18 @@ wire regW_sel_pc			= regW_opcode_info[8] | regW_opcode_info[9];
 wire regW_sel_alu_result    = regW_opcode_info[1] | regW_opcode_info[GPR_SIZE-1]  | regW_opcode_info[5] | regW_opcode_info[6]|
 							  regW_opcode_info[7] | regW_opcode_info[10] | regW_opcode_info[OP_SIZE-1];
 
-assign decode_regdata1 = regE_rd != 5'd0 && regE_reg_wen && regE_rd == rs1 ? execute_alu_result 	: 
-						   regM_rd != 5'd0 && regM_reg_wen && regM_rd == rs1 && regM_sel_alu_result	? regM_alu_result     : 
+assign decode_regdata1 	 = regE_rd != 5'd0 && regE_reg_wen && regE_rd == rs1 ? execute_alu_result 	: 
+						   regM_rd != 5'd0 && regM_reg_wen && regM_rd == rs1 && regM_sel_alu_result	? regM_alu_result     	: 
 						   regM_rd != 5'd0 && regM_reg_wen && regM_rd == rs1 && regM_sel_memdata  	? memory_memdata 		: 
-						   regW_rd != 5'd0 && regW_reg_wen && regW_rd == rs1 && regW_sel_alu_result 	? regW_alu_result 	: 
-						   regW_rd != 5'd0 && regW_reg_wen && regW_rd == rs1 && regW_sel_memdata		? regW_memdata 		: 
-						   regW_rd != 5'd0 && regW_reg_wen && regW_rd == rs1 && regW_sel_pc			? regW_pc + 64'd4     : regfile_regdata1; 
+						   regW_rd != 5'd0 && regW_reg_wen && regW_rd == rs1 && regW_sel_alu_result ? regW_alu_result 		: 
+						   regW_rd != 5'd0 && regW_reg_wen && regW_rd == rs1 && regW_sel_memdata	? regW_memdata 			: 
+						   regW_rd != 5'd0 && regW_reg_wen && regW_rd == rs1 && regW_sel_pc			? regW_pc + 64'd4     	: regfile_regdata1; 
 
 assign decode_regdata2 = regE_rd != 5'd0 && regE_reg_wen && regE_rd == rs2 ? execute_alu_result 	: 
-						   regM_rd != 5'd0 && regM_reg_wen && regM_rd == rs2 && regM_sel_alu_result	? regM_alu_result     : 
+						   regM_rd != 5'd0 && regM_reg_wen && regM_rd == rs2 && regM_sel_alu_result	? regM_alu_result     	: 
 						   regM_rd != 5'd0 && regM_reg_wen && regM_rd == rs2 && regM_sel_memdata  	? memory_memdata 		: 
-						   regW_rd != 5'd0 && regW_reg_wen && regW_rd == rs2 && regW_sel_alu_result 	? regW_alu_result 	: 
-						   regW_rd != 5'd0 && regW_reg_wen && regW_rd == rs2 && regW_sel_memdata		? regW_memdata 		: 
-						   regW_rd != 5'd0 && regW_reg_wen && regW_rd == rs2 && regW_sel_pc			? regW_pc + 64'd4     : regfile_regdata2; 
+						   regW_rd != 5'd0 && regW_reg_wen && regW_rd == rs2 && regW_sel_alu_result ? regW_alu_result 		: 
+						   regW_rd != 5'd0 && regW_reg_wen && regW_rd == rs2 && regW_sel_memdata	? regW_memdata 			: 
+						   regW_rd != 5'd0 && regW_reg_wen && regW_rd == rs2 && regW_sel_pc			? regW_pc + 64'd4     	: regfile_regdata2; 
 
 endmodule
